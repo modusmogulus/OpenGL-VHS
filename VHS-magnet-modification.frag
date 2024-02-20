@@ -119,11 +119,12 @@ vec3 colorDodge (vec3 target, vec3 blend){
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
 
+    float sharpenamount = 0.0009;
     vec2 uv = fragCoord/iResolution.xy;
 
     vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
     vec3 video = vec3(texture(iChannel0 ,uv));
-    video = sharpen(iChannel0, uv, 0.0015);
+    video = sharpen(iChannel0, uv, sharpenamount);
     vec4 background = vec4(stripeArtifact(iChannel0, uv, 100), 1.0);
     vec4 foreground = vec4(vec3(video.x, video.y, video.z), 1.0);
     vec4 stripedVideo = mix(background, foreground, clamp(foreground.y, 0.6, 0.7) * 2.5);
@@ -135,6 +136,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec3 valChanHSV = rgb2hsv(stripedVideo.xyz);
     vec3 combinedHSV = vec3(colChanHSV.x, colChanHSV.y, valChanHSV.z);
     vec3 combinedRGB = hsv2rgb(combinedHSV);
+
     fragColor = vec4(combinedRGB, 1.0);
     //fragColor = vec4(video, 1.0);
 }
