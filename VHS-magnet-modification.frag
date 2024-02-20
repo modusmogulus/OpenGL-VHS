@@ -1,4 +1,16 @@
 
+//by modusmogulus -- feel free to use :3
+
+
+vec3 sharpen(in sampler2D video, in vec2 uv, in float strength) {
+    vec3 vid = vec3(texture(video, uv));
+    vid += vec3(texture(video, uv + strength));
+    vid -= vec3(texture(video, uv - strength));
+         
+    return vid;
+}
+
+//---------------------------- BLUR -----------------------------------
 float SCurve (float x) {
 	
     
@@ -6,28 +18,7 @@ float SCurve (float x) {
 
 		x = x * 2.0 - 1.0;
 		return -x * abs(x) * 0.5 + x + 0.5;
-		
-        
-    //return dot(vec3(-x, 2.0, 1.0 ),vec3(abs(x), x, 1.0)) * 0.5; // possibly faster version
-	
-  
-    
-    // ---- original for posterity
-    
-    // How to do this without if-then-else?
-    // +edited the too steep curve value
-    
-    // if (value < 0.5)
-    // {
-    //    return value * value * 2.0;
-    // }
-    
-    // else
-    // {
-    // 	value -= 1.0;
-    
-    // 	return 1.0 - value * value * 2.0;
-    // }
+
 }
 
 vec4 BlurH (sampler2D source, vec2 size, vec2 uv, float radius) {
@@ -60,16 +51,7 @@ vec4 BlurH (sampler2D source, vec2 size, vec2 uv, float radius) {
 
 	return texture(source, uv);
 }
-
-
-vec3 sharpen(in sampler2D video, in vec2 uv, in float strength) {
-    vec3 vid = vec3(texture(video, uv));
-    vid += vec3(texture(video, uv + strength));
-    vid -= vec3(texture(video, uv - strength));
-         
-    return vid;
-}
-
+//---------------------------- * -----------------------------------
 vec3 stripeArtifact(in sampler2D video, in vec2 uv,  in int stripes)
 {
     //By modusmogulus
