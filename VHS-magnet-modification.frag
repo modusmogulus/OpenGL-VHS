@@ -75,19 +75,21 @@ vec3 stripeArtifact(in sampler2D video, in vec2 uv,  in int stripes)
 {
     //By modusmogulus
     vec3 vid = vec3(sharpen(iChannel0, uv, 0.000));
-
     for (int i = 0; i < stripes; i++) { 
         
         float cycletime = mod(floor( abs( iTime + ((uv.x+0.0)/1.1) ) * 10.0 ), 10.0 )  / 10.0;
         
-        uv = vec2(clamp(uv.x + float(i)/iResolution.x + cycletime * uv.x + uv.y * 0.1 , 0.0, 1.0), uv.y);
+        uv = vec2(clamp(uv.x + float(i)/iResolution.x + cycletime * uv.x  * 0.1 , 0.0, 1.0), uv.y);
         vec2 uv_edge = vec2(clamp(uv.x + float(i)/iResolution.x + cycletime * uv.x * 0.1 - 0.001 , 0.0, 1.0), uv.y);
         //vec3 value = clamp(vec3(texture(iChannel0, uv)), 0.8, 1.0) - 0.8;
         vec3 value = vec3(texture(iChannel0, uv));
         value = vec3(texture(iChannel0, uv)) - vec3(texture(iChannel0, uv_edge)) * 200.0;
         value = rgb2hsv(value);
-        value = vec3(value.x, 0.0, value.z);
-        value.z = sin(value.z * 0.2) * 2.0;
+        value = vec3(value.x, 0.0, value.z * 20.0);
+        //value.z = sin(value.z * 0.2) * 2.0;
+        //value.z = clamp(vid.x, 0.9, 1.0) * 100.0 - (0.9*100.0);
+        value.z = exp(clamp(value.z * -1.0 + 1.0, 0.95, 1.0) * 40.0 - (0.95*40.0));
+        value.z = value.z * sin(iTime / 10.0);
         value = hsv2rgb(value);
         
         if (i % 2 == 0) {
@@ -130,10 +132,11 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec4 stripedVideo = mix(background, foreground, clamp(foreground.y, 0.6, 0.7) * 2.5);
     stripedVideo = vec4(colorDodge(stripedVideo.xyz, foreground.xyz), 1.0);
     
-    vec4 blurredVideo = BlurH(iChannel0, iResolution.xy, uv, 100.9);
+    vec4 blurredVideo = BlurH(iChannel0, iResolution.xy, uv, 70.9);
     vec3 colChanHSV = rgb2hsv(blurredVideo.xyz);
     colChanHSV = vec3(colChanHSV.x - 0.0, colChanHSV.y*1.2, colChanHSV.z);
-    colChanHSV.y += (sin(iTime * uv.y / 10.0) * cos(uv.x + iTime) * 0.1);
+    colChanHSV.y += sin(iTime + uv.y * 10.1) * cos(uv.x + iTime) * 0.1;
+    colChanHSV.y += sin(uv.y * 700.0) * cos(uv.x + iTime) * 0.1;
     vec3 valChanHSV = rgb2hsv(stripedVideo.xyz);
     vec3 combinedHSV = vec3(colChanHSV.x, colChanHSV.y, valChanHSV.z);
     vec3 combinedRGB = hsv2rgb(combinedHSV);
