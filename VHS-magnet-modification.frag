@@ -1,6 +1,6 @@
 
-//by modusmogulus -- feel free to use :3
-
+//---- Most code is by modusmogulus -- Feel free to use :3
+//pseudogaussian blur by CeeJayDK https://www.shadertoy.com/view/Mtl3Rj (thank you <3)
 
 vec3 sharpen(in sampler2D video, in vec2 uv, in float strength) {
     vec3 vid = vec3(texture(video, uv));
@@ -12,9 +12,6 @@ vec3 sharpen(in sampler2D video, in vec2 uv, in float strength) {
 
 //---------------------------- BLUR -----------------------------------
 float SCurve (float x) {
-	
-    
-    // ---- by CeeJayDK https://www.shadertoy.com/view/Mtl3Rj
 
 		x = x * 2.0 - 1.0;
 		return -x * abs(x) * 0.5 + x + 0.5;
