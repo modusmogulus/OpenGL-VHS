@@ -80,7 +80,7 @@ vec3 stripeArtifact(in sampler2D video, in vec2 uv,  in int stripes)
         
         float cycletime = mod(floor( abs( iTime + ((uv.x+0.0)/1.1) ) * 10.0 ), 10.0 )  / 10.0;
         
-        uv = vec2(clamp(uv.x + float(i)/iResolution.x + cycletime * uv.x * 0.1 , 0.0, 1.0), uv.y);
+        uv = vec2(clamp(uv.x + float(i)/iResolution.x + cycletime * uv.x + uv.y * 0.1 , 0.0, 1.0), uv.y);
         vec2 uv_edge = vec2(clamp(uv.x + float(i)/iResolution.x + cycletime * uv.x * 0.1 - 0.001 , 0.0, 1.0), uv.y);
         //vec3 value = clamp(vec3(texture(iChannel0, uv)), 0.8, 1.0) - 0.8;
         vec3 value = vec3(texture(iChannel0, uv));
@@ -133,6 +133,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec4 blurredVideo = BlurH(iChannel0, iResolution.xy, uv, 100.9);
     vec3 colChanHSV = rgb2hsv(blurredVideo.xyz);
     colChanHSV = vec3(colChanHSV.x - 0.0, colChanHSV.y*1.2, colChanHSV.z);
+    colChanHSV.y += (sin(iTime * uv.y / 10.0) * cos(uv.x + iTime) * 0.1);
     vec3 valChanHSV = rgb2hsv(stripedVideo.xyz);
     vec3 combinedHSV = vec3(colChanHSV.x, colChanHSV.y, valChanHSV.z);
     vec3 combinedRGB = hsv2rgb(combinedHSV);
