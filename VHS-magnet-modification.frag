@@ -1,6 +1,7 @@
 
-//---- Most code is by modusmogulus -- Feel free to use :3
-//pseudogaussian blur by CeeJayDK https://www.shadertoy.com/view/Mtl3Rj (thank you <3)
+/*---- Most code is by modusmogulus -- Feel free to use :3
+except pseudogaussian blur is based on CeeJayDK https://www.shadertoy.com/view/Mtl3Rj (thank you <3)
+----*/
 
 vec3 sharpen(in sampler2D video, in vec2 uv, in float strength) {
     vec3 vid = vec3(texture(video, uv));
