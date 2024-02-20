@@ -89,7 +89,7 @@ vec3 stripeArtifact(in sampler2D video, in vec2 uv,  in int stripes)
         //value.z = sin(value.z * 0.2) * 2.0;
         //value.z = clamp(vid.x, 0.9, 1.0) * 100.0 - (0.9*100.0);
         value.z = exp(clamp(value.z * -1.0 + 1.0, 0.95, 1.0) * 40.0 - (0.95*40.0));
-        value.z = value.z * sin(iTime / 10.0);
+        value.z = value.z * sin(iTime / 2.0) * 3.0;
         value = hsv2rgb(value);
         
         if (i % 2 == 0) {
@@ -122,6 +122,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
 
     float sharpenamount = 0.0009;
+    float blurAmount = 70.0;
+    float rgbShift = 0.002;
+    
     vec2 uv = fragCoord/iResolution.xy;
     
 
@@ -135,15 +138,28 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     else {
         video = video;
     }
-    
+    /*
+    vec2 uv_cyan = vec2(uv.x + 0.05, uv.y + 0.05);
+    vec2 uv_yellow = vec2(uv.x - 0.05, uv.y + 0.05);
+    video.x = sharpen(iChannel0, uv_cyan, sharpenamount).x;
+    video.y = sharpen(iChannel0, uv, sharpenamount).y;
+    video.z = sharpen(iChannel0, uv_yellow, sharpenamount).z;
+    */
     video = sharpen(iChannel0, uv, sharpenamount);
-    if (uv.y < sin(iTime) && uv.y > sin(iTime+0.1)) { uv.x -= (uv.y*0.1); }
+    //if (uv.y < sin(iTime) && uv.y > sin(iTime+0.1)) { uv.x -= (uv.y*0.1); }
+    if (uv.y > 0.9 + (sin(iTime*1000.0) * 0.01) ) { uv.x -= (uv.x*0.3); }
     vec4 background = vec4(stripeArtifact(iChannel0, uv, 100), 1.0);
     vec4 foreground = vec4(vec3(video.x, video.y, video.z), 1.0);
     vec4 stripedVideo = mix(background, foreground, clamp(foreground.y, 0.6, 0.7) * 2.5);
     stripedVideo = vec4(colorDodge(stripedVideo.xyz, foreground.xyz), 1.0);
     
-    vec4 blurredVideo = BlurH(iChannel0, iResolution.xy, uv, 70.9);
+    vec2 uv_cyan = vec2(uv.x + rgbShift, uv.y + rgbShift * 1.3);
+    vec2 uv_yellow = vec2(uv.x - rgbShift, uv.y + rgbShift * 1.3);
+    
+    vec4 blurredVideo = BlurH(iChannel0, iResolution.xy, uv, blurAmount);
+    blurredVideo.x = BlurH(iChannel0, iResolution.xy, uv_cyan, blurAmount).x;
+    blurredVideo.z = BlurH(iChannel0, iResolution.xy, uv_yellow, blurAmount).z;
+    
     vec3 colChanHSV = rgb2hsv(blurredVideo.xyz);
     colChanHSV = vec3(colChanHSV.x - 0.0, colChanHSV.y*1.2, colChanHSV.z);
     
