@@ -123,10 +123,21 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
     float sharpenamount = 0.0009;
     vec2 uv = fragCoord/iResolution.xy;
+    
 
     vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
-    vec3 video = vec3(texture(iChannel0 ,uv));
+    vec3 video;
+    
+    //Cheap interlacing
+    if (iFrame % 10 == 0 ) {
+        vec3 video = vec3(texture(iChannel0 ,uv));
+    }
+    else {
+        video = video;
+    }
+    
     video = sharpen(iChannel0, uv, sharpenamount);
+    if (uv.y < sin(iTime) && uv.y > sin(iTime+0.1)) { uv.x -= (uv.y*0.1); }
     vec4 background = vec4(stripeArtifact(iChannel0, uv, 100), 1.0);
     vec4 foreground = vec4(vec3(video.x, video.y, video.z), 1.0);
     vec4 stripedVideo = mix(background, foreground, clamp(foreground.y, 0.6, 0.7) * 2.5);
@@ -135,8 +146,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec4 blurredVideo = BlurH(iChannel0, iResolution.xy, uv, 70.9);
     vec3 colChanHSV = rgb2hsv(blurredVideo.xyz);
     colChanHSV = vec3(colChanHSV.x - 0.0, colChanHSV.y*1.2, colChanHSV.z);
+    
     colChanHSV.y += sin(iTime + uv.y * 10.1) * cos(uv.x + iTime) * 0.1;
     colChanHSV.y += sin(uv.y * 700.0) * cos(uv.x + iTime) * 0.1;
+    
     vec3 valChanHSV = rgb2hsv(stripedVideo.xyz);
     vec3 combinedHSV = vec3(colChanHSV.x, colChanHSV.y, valChanHSV.z);
     vec3 combinedRGB = hsv2rgb(combinedHSV);
